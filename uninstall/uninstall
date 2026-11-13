@@ -1,0 +1,5 @@
+#!/bin/bash
+# Stop the alarm listener before the plugin is removed.
+PLUGIN=REPLACELBPPLUGINDIR
+if [ -f "$LBPDATA/$PLUGIN/alarmd.pid" ]; then kill "$(cat $LBPDATA/$PLUGIN/alarmd.pid)" 2>/dev/null || true; fi
+exit 0

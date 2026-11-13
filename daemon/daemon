@@ -1,0 +1,9 @@
+#!/bin/bash
+# Runs as root at LoxBerry boot. Starts the MQTT alarm listener as user loxberry.
+# The cron worker restarts it within a minute if it ever stops.
+PLUGIN=REPLACELBPPLUGINDIR
+mkdir -p $LBPLOG/$PLUGIN
+chown -R loxberry:loxberry $LBPLOG/$PLUGIN $LBPDATA/$PLUGIN > /dev/null 2>&1
+rm -f $LBPDATA/$PLUGIN/alarmd.pid
+su loxberry -s /bin/bash -c "export PERL5LIB=$LBHOMEDIR/libs/perllib; export LBHOMEDIR=$LBHOMEDIR; /usr/bin/perl $LBPBIN/$PLUGIN/worker.pl > /dev/null 2>&1" &
+exit 0

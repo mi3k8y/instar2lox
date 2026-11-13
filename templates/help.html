@@ -1,0 +1,8 @@
+<p><b>instar2lox</b> manages INSTAR Full HD cameras from LoxBerry. Tested on INSTAR Full HD 9 series (IN-9008 Full HD). Alarms are received via MQTT (LoxBerry broker) and sent to Loxone via UDP.</p>
+<ul>
+<li><b>Cameras</b>: status, model, firmware, WebUI version, SD card, reboot plan, last alarm. Poll, reboot or edit single cameras.</li>
+<li><b>Reboot plan</b>: per camera daily, weekly or monthly; executed by the plugin cron (once per minute check).</li>
+<li><b>Firmware</b>: a camera is outdated when its version is lower than the target version set for its model in Settings, or - without a target - lower than the newest version found on your other cameras of the same model.</li>
+<li><b>Loxone</b>: UDP is sent only on change. 0 always means OK: <code>instar2lox.&lt;id&gt;.offline</code>, <code>.outdated</code>, <code>.alarm</code>, plus <code>offline_count</code> and <code>outdated_count</code>.</li>
+<li><b>Alarms</b>: cameras publish <code>instar/&lt;MAC&gt;/status/alarm/triggered</code> to the LoxBerry broker. The MQTT tab can write the broker settings into each camera.</li>
+</ul>

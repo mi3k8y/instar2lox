@@ -1,0 +1,4 @@
+#!/bin/bash
+export PERL5LIB=/opt/loxberry/libs/perllib
+export LBHOMEDIR=/opt/loxberry
+/usr/bin/perl REPLACELBPBINDIR/worker.pl > /dev/null 2>&1
