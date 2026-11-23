@@ -59,6 +59,11 @@ LoxBerry plugin to monitor, manage and integrate INSTAR Full HD (1080p) IP camer
 - INSTAR is a trademark of INSTAR Deutschland GmbH. This is an independent community plugin,
   not affiliated with or endorsed by INSTAR.
 
+## Changelog
+
+- **1.0.1** - Alarms arriving right after a LoxBerry/broker restart are no longer reported as "unknown camera ID"; stale entries are hidden and the list can be cleared.
+- **1.0.0** - First public release.
+
 ## License
 
 MIT

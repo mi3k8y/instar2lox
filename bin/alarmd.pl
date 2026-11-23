@@ -86,7 +86,11 @@ sub load_map {
     $cfg_mtime = (stat($Instar2Lox::CFG_FILE))[9] // 0;
     my $st = Instar2Lox::read_state();
     my $bl = Instar2Lox::broker_log_info();
+    my %old = %by_id;
     %by_id = ();
+    my %cfg = map { ($_->{id} => $_) } @{ $c->{cameras} };
+    # IDs seen before stay valid while their camera is still configured.
+    for my $k (keys %old) { my $id = $old{$k}{id}; $by_id{$k} = $cfg{$id} if $cfg{$id}; }
     for my $cam (@{ $c->{cameras} }) {
         $by_id{$_} = $cam for Instar2Lox::topic_ids($cam, $st, $bl);
     }
@@ -121,6 +125,13 @@ sub on_message {
     }
     $val = int($val);
     my $cam = $by_id{$key};
+    # The camera may have (re)connected after the mapping was built - typical after
+    # a LoxBerry or broker restart, when the broker log starts empty. Rebuild the
+    # mapping (at most every 5 s) and try again before calling the ID unknown.
+    if (!$cam && time() - $map_time > 5) {
+        load_map();
+        $cam = $by_id{$key};
+    }
     unless ($cam) {
         LOGINF("Alarm from unknown camera ID '$key' (topic $topic, val=$val) - set its MQTT ID in the plugin");
         save_alarm(undef, $val, $topic);

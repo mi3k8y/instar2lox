@@ -277,6 +277,13 @@ elsif ($action eq 'bulk_apply') {
     }
     $page = 'bulk';
 }
+elsif ($action eq 'clear_unknown') {
+    my $as = Instar2Lox::load_json($Instar2Lox::ALARM_FILE, {});
+    delete $as->{unknown};
+    Instar2Lox::save_json_atomic($Instar2Lox::ALARM_FILE, $as);
+    push @ok, 'List of unknown camera IDs cleared.';
+    $page = 'mqtt';
+}
 elsif ($action eq 'test_alarm') {
     my $cam = Instar2Lox::find_cam($c, $id);
     if ($cam) {
@@ -612,9 +619,14 @@ sub page_mqtt {
         print '</table>';
     }
 
-    if ($al->{unknown} && %{ $al->{unknown} }) {
-        print '<h3>Alarms from unknown camera IDs</h3><p class="i2l-hint">Copy the ID (second topic level) into the camera\'s MQTT ID field.</p><ul>';
-        for my $t (sort { $al->{unknown}{$b} <=> $al->{unknown}{$a} } keys %{ $al->{unknown} }) {
+    # Unknown IDs: hide those that now belong to a camera and those older than 7 days.
+    my %now_known = map { ($_ => 1) } map { Instar2Lox::topic_ids($_, $st, $bl) } @{ $c->{cameras} };
+    my @unk = grep { my ($id) = (split m{/}, $_)[1]; !$now_known{ uc($id // '') } && time() - $al->{unknown}{$_} < 7 * 86400 }
+              keys %{ $al->{unknown} || {} };
+    if (@unk) {
+        print '<h3>Alarms from unknown camera IDs</h3><p class="i2l-hint">Copy the ID (second topic level) into the camera\'s MQTT ID field. '
+            . btn('clear_unknown', 'Clear list') . '</p><ul>';
+        for my $t (sort { $al->{unknown}{$b} <=> $al->{unknown}{$a} } @unk) {
             print '<li><code>' . H($t) . '</code> - ' . Instar2Lox::fmt_time($al->{unknown}{$t}) . '</li>';
         }
         print '</ul>';
